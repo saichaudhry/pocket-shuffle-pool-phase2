@@ -52,6 +52,108 @@ test('a resting ball next to a pocket is not swallowed', () => {
   eq(cue.pocketed, false);
 });
 
+// Takes a real shot via PoolGame.shoot (so turn/eligibility bookkeeping runs), then pretends the
+// balls in `droppedIds` fell in, stops everything, and lets update() resolve the shot.
+function fakeShot(state, droppedIds) {
+  const ok = PoolGame.shoot(state, 0, 0.1);
+  if (!ok) throw new Error('shot was refused');
+  for (const b of state.balls) { b.vx = 0; b.vy = 0; }
+  for (const id of droppedIds) { const b = ball(state, id); b.pocketed = true; state.shotPocketed.push(b); }
+  PoolGame.update(state, 1 / 240);
+}
+const openCount = state => state.pockets.filter(p => p.open).length;
+
+test('missing passes the turn; pocketing your own ball keeps it', () => {
+  const state = PoolGame.create();
+  eq(state.currentPlayer, 1);
+  fakeShot(state, [1]);          // P1 sinks solid 1
+  eq(state.currentPlayer, 1);
+  fakeShot(state, []);           // P1 misses
+  eq(state.currentPlayer, 2);
+});
+
+test('pocketing only an opponent ball passes the turn and lowers their count', () => {
+  const state = PoolGame.create();
+  fakeShot(state, [9]);          // P1 sinks a stripe
+  eq(state.currentPlayer, 2);
+  eq(PoolGame.remaining(state, 'stripe'), 2);
+});
+
+test('shuffle happens every 2 shots, changes the pair, keeps 4 open', () => {
+  for (let trial = 0; trial < 50; trial++) {
+    const state = PoolGame.create();
+    fakeShot(state, []);
+    eq(state.closedPair, [1, 4], 'no shuffle after 1 shot');
+    eq(PoolGame.shotsUntilShuffle(state), 1);
+    const before = state.closedPair.join();
+    fakeShot(state, []);
+    if (state.closedPair.join() === before) throw new Error('pair did not change');
+    eq(openCount(state), 4);
+    eq(PoolGame.shotsUntilShuffle(state), 2);
+  }
+});
+
+test('fouls count toward the shuffle', () => {
+  const state = PoolGame.create();
+  fakeShot(state, [0]);                        // foul
+  PoolGame.placeCue(state, 300, 300);
+  fakeShot(state, []);
+  eq(state.shots, 2);
+  if (state.closedPair.join() === '1,4') throw new Error('no shuffle after a foul + a shot');
+});
+
+test('cue-ball foul: turn passes and opponent must place the cue before shooting', () => {
+  const state = PoolGame.create();
+  fakeShot(state, [0, 1]);                     // P1 scratches while sinking own ball
+  eq(state.currentPlayer, 2);
+  eq(state.placingCue, true);
+  eq(ball(state, 1).pocketed, true, 'other balls stay pocketed');
+  eq(PoolGame.shoot(state, 0, 0.5), false, 'cannot shoot before placing');
+  eq(PoolGame.placeCue(state, 30, 30), false, 'outside the cushions');
+  eq(PoolGame.placeCue(state, 675, 267), false, 'on top of a ball');
+  eq(PoolGame.placeCue(state, 80, 80), false, 'on a pocket');
+  eq(PoolGame.placeCue(state, 300, 300), true);
+  eq(state.placingCue, false);
+});
+
+test('8-ball after clearing your group wins', () => {
+  const state = PoolGame.create();
+  for (const id of [1, 2, 3]) ball(state, id).pocketed = true;
+  fakeShot(state, [8]);
+  eq(state.winner, 1);
+});
+
+test('early 8-ball loses', () => {
+  const state = PoolGame.create();
+  fakeShot(state, [8]);
+  eq(state.winner, 2);
+});
+
+test('clearing your last ball AND the 8 on the same shot loses (eligibility is checked before the shot)', () => {
+  const state = PoolGame.create();
+  for (const id of [1, 2]) ball(state, id).pocketed = true;
+  fakeShot(state, [3, 8]);
+  eq(state.winner, 2);
+});
+
+test('8-ball with the cue ball loses even when eligible', () => {
+  const state = PoolGame.create();
+  for (const id of [1, 2, 3]) ball(state, id).pocketed = true;
+  fakeShot(state, [8, 0]);
+  eq(state.winner, 2);
+});
+
+test('no shots after the game ends', () => {
+  const state = PoolGame.create();
+  fakeShot(state, [8]);
+  eq(PoolGame.shoot(state, 0, 0.5), false);
+});
+
+test('reset (create) gives a fresh game', () => {
+  const state = PoolGame.create();
+  eq([state.currentPlayer, state.shots, state.winner, state.placingCue, openCount(state)], [1, 0, 0, false, 4]);
+});
+
 // ---- add new tests above this line ----
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
