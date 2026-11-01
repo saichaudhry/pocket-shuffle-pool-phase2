@@ -73,7 +73,7 @@ Each one sets a global on `window`.
 |---|---|---|
 | `index.html` | Page: header, status line, HUD boxes, canvas, power meter, footer. | Page layout and text |
 | `style.css` | All page styling (Veer's single minified line, plus a commented HUD block I added at the end). | Look of the HUD and page |
-| `js/physics.js` | `PoolPhysics`: movement, cushions, collisions, friction, and **pocket capture**. `step(balls, dt, pockets)` returns the balls pocketed during that step. | Ball behaviour, pocket size |
+| `js/physics.js` | `PoolPhysics`: movement, cushions (`bounceOffCushions`, Veer's code moved into a function), multi-pass collisions, friction, and **pocket capture** (`dropsInto`). `step(balls, dt, pockets)` returns the balls pocketed during that step. | Ball behaviour, pocket difficulty |
 | `js/game.js` | `PoolGame`: starting layout and all match state (`create()`), `shoot()`, `update()`. Also `resolveShot()` (turns, fouls, 8-ball), `shufflePockets()`, `canPlaceCue()`/`placeCue()`, and HUD helpers `remaining()` and `shotsUntilShuffle()`. | Any rule |
 | `js/render.js` | `PoolRender`: draws the table, pockets, aim line, balls, the ghost cue during placement, and the winner banner. Reads state only. | Visuals |
 | `js/main.js` | Mouse input (aim, charge, shoot, **click to place the cue**), Reset, the fixed-step game loop, and HUD text (`updateHud()`). | Controls, on-screen text |
@@ -109,14 +109,18 @@ How a shot flows:
 
 ## Known bugs and traps
 
-- **Pocket capture is "center within 23px of an open pocket"**, and only for moving balls. A
-  ball rolling slowly along the rail past an open middle pocket will drop in, which is roughly
-  realistic. A resting ball next to a pocket that a shuffle has just opened does not drop.
+- **Pocket capture** (`dropsInto()` in `physics.js`) only applies to moving balls:
+  - **Corners:** the ball's center comes within 22px.
+  - **Middles:** the center comes within 17px **and** at least 35% of the ball's speed points
+    into the rail. A ball rolling along the cushion past a middle pocket stays on the table.
+  - **Resting balls:** a ball sitting next to a pocket that a shuffle just opened does not drop.
+  - The constants at the top of `physics.js` tune all of this.
 - **`balls[0]` must stay the cue ball.** `render.js`, `main.js` and `placeCue()` index it
   directly.
 - **The pocketed cue ball keeps its `x`/`y` at the pocket** until it's placed. Anything new that
   reads cue coordinates should check `pocketed` first.
-- **Veer's known quirks are still there:** balls can jitter briefly when crowded against a
-  wall, and a quick click still shoots softly. (Moving the mouse while charging no longer changes the aim: the aim locks when you press the button.)
+- **Veer's jitter quirk is fixed:** collisions run 4 passes per step and re-check the
+  cushions. In a stress test, the worst overlap dropped from 2.15px to 0.88px and balls no
+  longer get pushed into the cushion. A quick click still shoots softly. (Moving the mouse while charging no longer changes the aim: the aim locks when you press the button.)
 - **Cue placement allows any open spot** on the table (no "behind the line" rule). This is what
   the spec says, but it makes fouls costly.

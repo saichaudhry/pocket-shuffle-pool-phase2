@@ -166,6 +166,35 @@ test('a shuffle highlights the changed pockets and blocks shooting until it ends
   eq(PoolGame.shoot(state, 0, 0.5), true, 'allowed after highlight');
 });
 
+function openAllPockets(state) { state.pockets.forEach(p => { p.open = true; }); }
+
+test('a ball rolling along the top rail past an open MIDDLE pocket stays on the table', () => {
+  const state = PoolGame.create();
+  clearTableExcept(state, []); openAllPockets(state);
+  const cue = state.balls[0]; cue.x = 300; cue.y = 72;   // touching the top cushion
+  shootAt(state, 700, 72, 0.2);   // ~250px/s: passes x=500, stops well before the corner
+  settle(state);
+  eq(cue.pocketed, false);
+});
+
+test('a ball driven straight into an open MIDDLE pocket drops', () => {
+  const state = PoolGame.create();
+  clearTableExcept(state, []); openAllPockets(state);
+  const cue = state.balls[0]; cue.x = 500; cue.y = 300;
+  shootAt(state, 500, 60, 0.5);
+  settle(state);
+  eq(cue.pocketed, true);
+});
+
+test('balls packed against a cushion never sit inside it', () => {
+  const balls = [];
+  for (let k = 0; k < 7; k++) balls.push({ x: 880 + (k % 3) * 24, y: 250 + Math.floor(k / 3) * 22, vx: 700, vy: 0, pocketed: false });
+  for (let i = 0; i < 240 * 5; i++) {
+    PoolPhysics.step(balls, 1 / 240, []);
+    for (const b of balls) if (b.x > PoolPhysics.bounds.right - PoolPhysics.radius + 0.01) throw new Error('ball inside cushion at x=' + b.x);
+  }
+});
+
 // ---- add new tests above this line ----
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
