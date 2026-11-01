@@ -19,7 +19,8 @@ are in a marked section at the bottom of it.
 ## Controls and rules in brief
 
 - **Aim:** move the mouse; the dashed line shows the starting direction.
-- **Shoot:** hold the left mouse button to charge (see the power bar), then release.
+- **Shoot:** hold the left mouse button to charge (see the power bar), then release. The aim
+  locks when you press, so you can't knock the shot off line while charging.
 - **Player 1 has solids (●) and Player 2 has stripes (◐).** The highlighted box at the top shows
   whose turn it is and how many balls each player has left.
 - **Pocket one of your own balls** and you shoot again. Otherwise the turn passes.
@@ -104,7 +105,6 @@ How a shot flows:
 2. **Keep shuffle and foul messages visible longer.** Right now they disappear as soon as the
    next shot starts charging. A small message log or a short canvas toast would help.
 3. **Show the shuffle on the table:** briefly highlight the pockets that just opened or closed.
-4. **Lock the aim while charging** (Veer listed this as a known quirk).
 
 ## Known bugs and traps
 
@@ -116,6 +116,6 @@ How a shot flows:
 - **The pocketed cue ball keeps its `x`/`y` at the pocket** until it's placed. Anything new that
   reads cue coordinates should check `pocketed` first.
 - **Veer's known quirks are still there:** balls can jitter briefly when crowded against a
-  wall, a quick click still shoots softly, and moving the mouse while charging changes the aim.
+  wall, and a quick click still shoots softly. (Moving the mouse while charging no longer changes the aim: the aim locks when you press the button.)
 - **Cue placement allows any open spot** on the table (no "behind the line" rule). This is what
   the spec says, but it makes fouls costly.

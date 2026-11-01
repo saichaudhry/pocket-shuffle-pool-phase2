@@ -2,19 +2,20 @@
   const canvas=document.querySelector('#table'),ctx=canvas.getContext('2d');
   const meter=document.querySelector('#power'),status=document.querySelector('#status');
   const hud={p1:document.querySelector('#hud-p1'),p2:document.querySelector('#hud-p2'),shuffle:document.querySelector('#shuffle-count')};
-  let state=PoolGame.create(),pointer={x:650,y:280},charging=false,chargeStart=0,last=performance.now(),accumulator=0;
+  let state=PoolGame.create(),pointer={x:650,y:280},charging=false,chargeStart=0,aimPoint=null,last=performance.now(),accumulator=0;
   function locate(event){const r=canvas.getBoundingClientRect();pointer={x:(event.clientX-r.left)*canvas.width/r.width,y:(event.clientY-r.top)*canvas.height/r.height};}
   canvas.addEventListener('pointermove',locate);
   canvas.addEventListener('pointerdown',event=>{
     if(event.button!==0 || PoolPhysics.moving(state.balls) || state.shotInProgress || state.winner)return;
     // After a cue-ball foul, a click places the cue ball instead of starting a shot (Phase 2).
     if(state.placingCue){locate(event);PoolGame.placeCue(state,pointer.x,pointer.y);return;}
-    event.preventDefault();locate(event);charging=true;chargeStart=performance.now();canvas.setPointerCapture(event.pointerId);
+    // Aim is locked where you pressed, so moving the mouse while charging can't change the shot (Phase 2).
+    event.preventDefault();locate(event);aimPoint={...pointer};charging=true;chargeStart=performance.now();canvas.setPointerCapture(event.pointerId);
   });
   canvas.addEventListener('pointerup',event=>{
     if(!charging)return;
     locate(event);charging=false;
-    PoolGame.shoot(state,Math.atan2(pointer.y-state.balls[0].y,pointer.x-state.balls[0].x),Math.min(1,(performance.now()-chargeStart)/1200));
+    PoolGame.shoot(state,Math.atan2(aimPoint.y-state.balls[0].y,aimPoint.x-state.balls[0].x),Math.min(1,(performance.now()-chargeStart)/1200));
   });
   canvas.addEventListener('pointercancel',()=>{charging=false;});
   window.addEventListener('blur',()=>{charging=false;});
@@ -26,7 +27,7 @@
     const power=charging?Math.min(1,(now-chargeStart)/1200):0;
     meter.value=power;status.textContent=PoolPhysics.moving(state.balls)?'Balls moving…':charging?`Player ${state.currentPlayer} charging shot…`:state.message;
     updateHud();
-    PoolRender(ctx,state,pointer,power);requestAnimationFrame(frame);
+    PoolRender(ctx,state,charging?aimPoint:pointer,power);requestAnimationFrame(frame);
   }
   // Phase 2: per-player group + remaining balls, and shots until the next pocket shuffle.
   function updateHud(){
