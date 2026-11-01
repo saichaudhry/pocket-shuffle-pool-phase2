@@ -27,6 +27,29 @@ from those Phase 2 instructions: unmodified first commit, keep 75%, criteria rep
 4. **Verification:** node tests, headless-Chrome screenshots of each state, and a 300-game
    random simulation with real physics.
 
+## Round 2: improvements (my prompts, verbatim)
+
+> let's do some more imrpovements what do you suggest / ask me for ideas
+
+The AI suggested four improvements. I picked: **visible shuffle**, **lock aim while charging**
+and **sounds**.
+
+> let's improve the physics and the hay the shotclock works
+
+The AI asked what I meant. My answers:
+- **Physics:** fix "jitter in clusters" and make pockets **harder / more realistic**.
+- **"Shot clock":** I meant **the power meter**, and chose to make it **oscillate**.
+
+What it built, one commit each:
+- the shuffle highlight;
+- the aim lock;
+- multi-pass collisions with tighter, angle-aware middle pockets;
+- the sweeping power meter;
+- Web Audio sound effects.
+
+For the physics, it measured the jitter before and after (worst overlap 2.15px → 0.88px). It
+also checked that its new tests fail on the old physics, so the tests really catch the problem.
+
 ## When the AI did something I didn't want / had to be checked
 
 - **It tried to create the public GitHub repo with no further confirmation from me.** The

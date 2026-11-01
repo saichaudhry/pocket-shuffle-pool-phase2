@@ -34,7 +34,7 @@ are in a marked section at the bottom of it.
   cue ball. The ghost ball turns green where placement is allowed and red where it isn't.
 - **To win:** clear your three balls, then sink the 8-ball. Sinking the 8-ball early, or
   together with the cue ball, loses the game.
-- **Reset table** starts a fresh game at any time.
+- **Reset table** starts a fresh game at any time. **Sound: on/off** toggles the sound effects.
 
 ## Acceptance criteria report
 
@@ -68,7 +68,7 @@ next thing anyone should do.
 
 ## Code map
 
-The scripts load in this order (keep it): `physics.js` → `game.js` → `render.js` → `main.js`.
+The scripts load in this order (keep it): `physics.js` → `sound.js` → `game.js` → `render.js` → `main.js`.
 Each one sets a global on `window`.
 
 | File | Responsibility | Go here to change… |
@@ -76,6 +76,7 @@ Each one sets a global on `window`.
 | `index.html` | Page: header, status line, HUD boxes, canvas, power meter, footer. | Page layout and text |
 | `style.css` | All page styling (Veer's single minified line, plus a commented HUD block I added at the end). | Look of the HUD and page |
 | `js/physics.js` | `PoolPhysics`: movement, cushions (`bounceOffCushions`, Veer's code moved into a function), multi-pass collisions, friction, and **pocket capture** (`dropsInto`). `step(balls, dt, pockets)` returns the balls pocketed during that step. | Ball behaviour, pocket difficulty |
+| `js/sound.js` | `PoolSound`: sound effects synthesized with Web Audio (no files), plus mute. `play(type, strength)`. | Sounds |
 | `js/game.js` | `PoolGame`: starting layout and all match state (`create()`), `shoot()`, `update()`. Also `resolveShot()` (turns, fouls, 8-ball), `shufflePockets()`, `canPlaceCue()`/`placeCue()`, and HUD helpers `remaining()` and `shotsUntilShuffle()`. | Any rule |
 | `js/render.js` | `PoolRender`: draws the table, pockets, aim line, balls, the ghost cue during placement, and the winner banner. Reads state only. | Visuals |
 | `js/main.js` | Mouse input (aim, charge, shoot, **click to place the cue**), Reset, the fixed-step game loop, and HUD text (`updateHud()`). | Controls, on-screen text |
@@ -117,6 +118,9 @@ How a shot flows:
     into the rail. A ball rolling along the cushion past a middle pocket stays on the table.
   - **Resting balls:** a ball sitting next to a pocket that a shuffle just opened does not drop.
   - The constants at the top of `physics.js` tune all of this.
+- **Sound events pile up if nothing drains them.** `game.js` pushes cues into `state.events`
+  and `main.js` empties that list every frame. Code that runs the game without `main.js` (the
+  tests, for example) should ignore or clear `state.events`.
 - **`balls[0]` must stay the cue ball.** `render.js`, `main.js` and `placeCue()` index it
   directly.
 - **The pocketed cue ball keeps its `x`/`y` at the pocket** until it's placed. Anything new that

@@ -195,6 +195,17 @@ test('balls packed against a cushion never sit inside it', () => {
   }
 });
 
+test('game queues sound events: cue strike, hits, pocket, shuffle', () => {
+  const state = PoolGame.create();
+  shootAt(state, 650, 280, 0.8);              // break into the rack
+  settle(state);
+  const types = new Set(state.events.map(e => e.type));
+  if (!types.has('cue') || !types.has('hit')) throw new Error('missing cue/hit: ' + [...types]);
+  const s2 = PoolGame.create();
+  fakeShot(s2, []); fakeShot(s2, []);
+  if (!s2.events.some(e => e.type === 'shuffle')) throw new Error('no shuffle event');
+});
+
 // ---- add new tests above this line ----
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

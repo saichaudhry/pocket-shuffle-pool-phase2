@@ -81,3 +81,5 @@ Controls and shot flow
   ("longer holds produce stronger shots up to the cap"), which now holds only for the first
   1.2 seconds. To restore the original behaviour, make `chargePower()` in `js/main.js` return
   `Math.min(1, (now - chargeStart) / sweepMs)`.
+- **Sound effects (added in Phase 2, beyond the original spec):** synthesized sounds for the cue
+  strike, ball contacts, pocketing, fouls, shuffles and the win, with a Sound on/off button.

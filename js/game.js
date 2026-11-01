@@ -27,6 +27,7 @@ window.PoolGame = (() => {
       eligibleForEight: false,   // shooter had cleared their group when the shot began (rule 7)
       placingCue: false,         // true after a cue-ball foul until the incoming player places it
       winner: 0,                 // 0 = game running, else 1 or 2
+      events: [],                // sound cues for main.js to play and clear: 'cue', 'hit', 'pocket', ...
       shuffleFlash: 0,           // seconds left of the 'Pockets shuffled!' highlight; shots wait for it
       changedPockets: [],        // pocket indexes that opened or closed in the last shuffle
       message: 'Player 1 breaks. Solids vs stripes.'
@@ -50,6 +51,7 @@ window.PoolGame = (() => {
     const speed = 100 + Math.max(0, Math.min(1, power)) * 750;
     cue.vx = Math.cos(angle) * speed; cue.vy = Math.sin(angle) * speed;
     state.shotInProgress = true;
+    state.events.push({ type: 'cue', strength: power });
     state.shotPocketed = [];
     state.shooter = state.currentPlayer;
     // Decided at the START of the shot: clearing your last ball and the 8 together still loses.
@@ -59,7 +61,9 @@ window.PoolGame = (() => {
 
   function update(state, dt) {
     if (state.shuffleFlash > 0) state.shuffleFlash = Math.max(0, state.shuffleFlash - dt);
-    state.shotPocketed.push(...PoolPhysics.step(state.balls, dt, state.pockets));
+    const dropped = PoolPhysics.step(state.balls, dt, state.pockets, closing => state.events.push({ type: 'hit', strength: closing / 600 }));
+    state.shotPocketed.push(...dropped);
+    for (const b of dropped) state.events.push({ type: b.group === 'cue' ? 'foul' : 'pocket' });
     if (state.shotInProgress && !PoolPhysics.moving(state.balls)) {
       state.shotInProgress = false; state.shots++;
       resolveShot(state);
@@ -77,6 +81,7 @@ window.PoolGame = (() => {
     if (eightIn) {
       const legal = state.eligibleForEight && !cueIn;
       state.winner = legal ? shooter : opponent;
+      state.events.push({ type: 'win' });
       state.message = legal ? `Player ${shooter} sinks the 8-ball and wins!`
         : `Player ${shooter} ${cueIn ? 'scratched on the 8-ball' : 'sank the 8-ball too early'}. Player ${opponent} wins!`;
       return;
@@ -104,6 +109,7 @@ window.PoolGame = (() => {
     state.pockets.forEach((p, i) => { p.open = !state.closedPair.includes(i); });
     state.changedPockets = state.pockets.map((p, i) => i).filter(i => state.pockets[i].open !== wasOpen[i]);
     state.shuffleFlash = shuffleFlashSeconds;
+    state.events.push({ type: 'shuffle' });
     state.message += ' Pockets shuffled!';
   }
 

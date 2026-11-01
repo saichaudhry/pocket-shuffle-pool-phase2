@@ -11,8 +11,9 @@ window.PoolPhysics = (() => {
   const middleMinApproach = 0.35; // fraction of the ball's speed that must point into the rail
   const collisionPasses = 4;      // repeated overlap resolution stops clusters jittering
   const moving = balls => balls.some(b => !b.pocketed && Math.hypot(b.vx, b.vy) > 0);
-  // `pockets` is optional so older calls still work. Returns the balls pocketed during this step.
-  function step(balls, dt, pockets = []) {
+  // `pockets` and `onHit` are optional so older calls still work. Returns the balls pocketed during
+  // this step. onHit(closingSpeed) is called for each ball-to-ball impact (used for sound).
+  function step(balls, dt, pockets = [], onHit = null) {
     const active = balls.filter(b => !b.pocketed);
     const pocketedNow = [];
     for (const b of active) {
@@ -38,6 +39,7 @@ window.PoolPhysics = (() => {
         b.x += nx * correction; b.y += ny * correction;
         const closing = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
         if (closing > 0) {
+          if (onHit) onHit(closing);
           const impulse = closing * .97;
           a.vx -= impulse * nx; a.vy -= impulse * ny;
           b.vx += impulse * nx; b.vy += impulse * ny;

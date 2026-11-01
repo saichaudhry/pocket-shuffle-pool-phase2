@@ -7,13 +7,13 @@
 </head>
 <body>
   <main>
-    <header><div><p class="eyebrow">DESIGNED BY VEER GUPTA · COMPLETED BY SAI CHAUDHRY</p><h1>Pocket Shuffle Pool<span>8</span></h1></div><button id="restart">Reset table</button></header>
+    <header><div><p class="eyebrow">DESIGNED BY VEER GUPTA · COMPLETED BY SAI CHAUDHRY</p><h1>Pocket Shuffle Pool<span>8</span></h1></div><div class="header-buttons"><button id="mute" aria-pressed="false">Sound: on</button><button id="restart">Reset table</button></div></header>
     <section class="status"><strong id="status">Ready to shoot</strong><span id="shuffle-count"></span></section>
     <section class="hud"><div id="hud-p1" class="player"></div><div id="hud-p2" class="player"></div></section>
     <canvas id="table" width="1000" height="560" aria-label="Pool table. Aim with the mouse, hold the left button to charge, then release to shoot."></canvas>
     <section class="controls"><div><label for="power">SHOT POWER</label><progress id="power" value="0" max="1"></progress></div><p>Move mouse to aim · Hold left click — power sweeps up and down · Release to shoot</p></section>
     <footer><strong>The twist:</strong> four open pockets, two closed. <span>The two closed pockets (marked with an X) change after every second shot. Clear your three balls, then sink the 8-ball.</span></footer>
   </main>
-  <script src="js/physics.js"></script><script src="js/game.js"></script><script src="js/render.js"></script><script src="js/main.js"></script>
+  <script src="js/physics.js"></script><script src="js/sound.js"></script><script src="js/game.js"></script><script src="js/render.js"></script><script src="js/main.js"></script>
 </body>
 </html>

@@ -24,6 +24,8 @@
   });
   canvas.addEventListener('pointercancel',()=>{charging=false;});
   window.addEventListener('blur',()=>{charging=false;});
+  const muteButton=document.querySelector('#mute');
+  muteButton.addEventListener('click',()=>{PoolSound.setMuted(!PoolSound.isMuted());muteButton.textContent=PoolSound.isMuted()?'Sound: off':'Sound: on';muteButton.setAttribute('aria-pressed',PoolSound.isMuted());});
   document.querySelector('#restart').addEventListener('click',()=>{state=PoolGame.create();charging=false;accumulator=0;});
   function frame(now){
     // Small fixed steps reduce tunneling; cap elapsed time after background-tab pauses.
@@ -32,6 +34,8 @@
     const power=charging?chargePower(now):0;
     meter.value=power;status.textContent=PoolPhysics.moving(state.balls)?'Balls moving…':charging?`Player ${state.currentPlayer} charging shot…`:state.message;
     updateHud();
+    // Phase 2: play and clear the sound cues the game queued this frame.
+    for(const e of state.events.splice(0))PoolSound.play(e.type,e.strength);
     PoolRender(ctx,state,charging?aimPoint:pointer,power);requestAnimationFrame(frame);
   }
   // Phase 2: per-player group + remaining balls, and shots until the next pocket shuffle.
