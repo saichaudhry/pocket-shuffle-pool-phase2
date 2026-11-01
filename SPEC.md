@@ -60,3 +60,18 @@ Controls and shot flow
 - The HUD accurately shows each player's remaining balls and the number of shots until the next shuffle, and announces a shuffle or foul.
 - Restart resets the balls, assignments, current player, shot counter, pocket layout, and game result to a fresh playable game.
 - Ball groups and pocket states are distinguishable using markings as well as color, such as stripes and a closed-pocket cover.
+
+---
+
+## Phase 2 additions and interpretations (added by Sai Chaudhry; everything above is Veer's original text)
+
+- **"Pairs other than the current pair" (rule 6):** I read "pair" as any 2 of the 6 pockets, so
+  each shuffle picks one of 14 other pairs at random. If you meant a fixed set of pairs (for
+  example "the two middles" or "two opposite corners"), change `pocketPairs` in `js/game.js`.
+- **Pocket entry:** a moving ball drops when its center comes within 23px of an open pocket's
+  center (the drawn pocket size). Resting balls never drop, so a shuffle can't swallow a ball
+  that is sitting still.
+- **Eligibility for the 8-ball (rule 7):** checked at the moment the shot starts. Sinking your
+  last ball and the 8-ball on the same shot therefore loses.
+- **Scratch while also pocketing your own ball (rules 3 and 9):** the foul wins, so the turn
+  passes.
