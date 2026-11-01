@@ -94,8 +94,14 @@ How a shot flows:
 
 ## What I changed, and what I kept
 
-- Veer's code is about 87% untouched: 18 of his 143 original lines were modified, almost all to
-  extend them. No files were restructured or renamed.
+- **How much of Veer's code is preserved:** 79% of his 143 original lines are untouched, not
+  counting whitespace (`git diff -w` against the first commit). The rest are mostly moves and
+  extensions, not deletions:
+  - His cushion code moved unchanged into `bounceOffCushions()`.
+  - His collision loop now runs inside a multi-pass loop; the logic is the same.
+  - `step()`, `shoot()` and the mouse handlers gained parameters and guards.
+  - None of his logic was removed. No files were renamed or restructured, apart from the prompt
+    log rename below.
 - New code went into the spots his TODOs pointed to. Pocket entry is in `PoolPhysics.step`,
   before the cushion response. Shot resolution and the shuffle are in `PoolGame.update`. The
   cue ball stays at `balls[0]`, because `render.js` and `main.js` rely on that.
