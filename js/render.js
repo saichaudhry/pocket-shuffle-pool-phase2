@@ -28,6 +28,12 @@ window.PoolRender = (ctx, state, pointer, power) => {
     ctx.globalAlpha=.6;ctx.beginPath();ctx.arc(pointer.x,pointer.y,12,0,Math.PI*2);ctx.fillStyle='#f6f3e8';ctx.fill();
     ctx.globalAlpha=1;ctx.lineWidth=3;ctx.strokeStyle=ok?'#7be08a':'#e0605a';ctx.stroke();
   }
+  // Phase 2: pulse the pockets that just changed (green = newly open, orange = newly closed) + banner.
+  if (state.shuffleFlash > 0 && !state.winner) {
+    const pulse=.5+.5*Math.sin(state.shuffleFlash*12);
+    for (const i of state.changedPockets) {const p=state.pockets[i];ctx.lineWidth=4+pulse*4;ctx.strokeStyle=p.open?'#7be08a':'#f0a04b';ctx.beginPath();ctx.arc(p.x,p.y,30+pulse*6,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='#000a';ctx.fillRect(380,100,240,44);ctx.fillStyle='#e4d9b4';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Pockets shuffled!',500,122);
+  }
   // Phase 2: winner banner; shooting is also blocked in PoolGame.shoot.
   if (state.winner) {
     ctx.fillStyle='#000a';ctx.fillRect(0,220,1000,120);ctx.fillStyle='#e4d9b4';ctx.font='bold 40px Arial';ctx.textAlign='center';ctx.textBaseline='middle';

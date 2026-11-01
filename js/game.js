@@ -3,6 +3,7 @@ window.PoolGame = (() => {
   // Phase 2 (Sai): match-rule constants. Player 1 = solids, Player 2 = stripes (SPEC rule 2).
   const groups = { 1: 'solid', 2: 'stripe' };
   const shotsPerShuffle = 2;
+  const shuffleFlashSeconds = 1.5; // how long the new layout is highlighted before the next shot
   // Every way to choose 2 of the 6 pockets (15 pairs). SPEC rule 6 says "pairs other than the
   // current pair"; we read that as any 2 pockets, not a fixed list. See README.
   const pocketPairs = [];
@@ -26,6 +27,8 @@ window.PoolGame = (() => {
       eligibleForEight: false,   // shooter had cleared their group when the shot began (rule 7)
       placingCue: false,         // true after a cue-ball foul until the incoming player places it
       winner: 0,                 // 0 = game running, else 1 or 2
+      shuffleFlash: 0,           // seconds left of the 'Pockets shuffled!' highlight; shots wait for it
+      changedPockets: [],        // pocket indexes that opened or closed in the last shuffle
       message: 'Player 1 breaks. Solids vs stripes.'
     };
   }
@@ -41,6 +44,7 @@ window.PoolGame = (() => {
   function shoot(state, angle, power) {
     if (PoolPhysics.moving(state.balls) || state.shotInProgress) return false;
     if (state.winner || state.placingCue) return false; // game over, or cue must be placed first
+    if (state.shuffleFlash > 0) return false;           // let players see the new pocket layout first
     const cue = state.balls.find(b => b.group === 'cue');
     if (!cue || cue.pocketed) return false;
     const speed = 100 + Math.max(0, Math.min(1, power)) * 750;
@@ -54,6 +58,7 @@ window.PoolGame = (() => {
   }
 
   function update(state, dt) {
+    if (state.shuffleFlash > 0) state.shuffleFlash = Math.max(0, state.shuffleFlash - dt);
     state.shotPocketed.push(...PoolPhysics.step(state.balls, dt, state.pockets));
     if (state.shotInProgress && !PoolPhysics.moving(state.balls)) {
       state.shotInProgress = false; state.shots++;
@@ -95,7 +100,10 @@ window.PoolGame = (() => {
     const same = ([a, b]) => a === state.closedPair[0] && b === state.closedPair[1];
     const choices = pocketPairs.filter(pair => !same(pair));
     state.closedPair = choices[Math.floor(Math.random() * choices.length)];
+    const wasOpen = state.pockets.map(p => p.open);
     state.pockets.forEach((p, i) => { p.open = !state.closedPair.includes(i); });
+    state.changedPockets = state.pockets.map((p, i) => i).filter(i => state.pockets[i].open !== wasOpen[i]);
+    state.shuffleFlash = shuffleFlashSeconds;
     state.message += ' Pockets shuffled!';
   }
 
@@ -115,5 +123,5 @@ window.PoolGame = (() => {
     return true;
   }
 
-  return { create, shoot, update, groups, remaining, shotsUntilShuffle, canPlaceCue, placeCue };
+  return { create, shoot, update, shuffleFlashSeconds, groups, remaining, shotsUntilShuffle, canPlaceCue, placeCue };
 })();

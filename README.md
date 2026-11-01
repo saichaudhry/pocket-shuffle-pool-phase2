@@ -25,7 +25,9 @@ are in a marked section at the bottom of it.
   whose turn it is and how many balls each player has left.
 - **Pocket one of your own balls** and you shoot again. Otherwise the turn passes.
 - **Closed pockets are marked with an X** and act like cushions. The text above the table shows
-  how many shots remain before the pockets shuffle.
+  how many shots remain before the pockets shuffle. When they shuffle, the pockets that changed
+  pulse for 1.5 seconds (green = now open, orange = now closed), and the next shot waits until
+  the highlight ends.
 - **Scratch (cue ball pocketed):** the other player clicks anywhere on the table to place the
   cue ball. The ghost ball turns green where placement is allowed and red where it isn't.
 - **To win:** clear your three balls, then sink the 8-ball. Sinking the 8-ball early, or
@@ -102,9 +104,8 @@ How a shot flows:
 ## What to do next (priority order)
 
 1. **Play-test with a real mouse**, especially cue placement and the end of the game.
-2. **Keep shuffle and foul messages visible longer.** Right now they disappear as soon as the
+2. **Keep foul messages visible longer.** Right now they disappear as soon as the
    next shot starts charging. A small message log or a short canvas toast would help.
-3. **Show the shuffle on the table:** briefly highlight the pockets that just opened or closed.
 
 ## Known bugs and traps
 

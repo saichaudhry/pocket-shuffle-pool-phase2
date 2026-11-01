@@ -6,7 +6,7 @@
   function locate(event){const r=canvas.getBoundingClientRect();pointer={x:(event.clientX-r.left)*canvas.width/r.width,y:(event.clientY-r.top)*canvas.height/r.height};}
   canvas.addEventListener('pointermove',locate);
   canvas.addEventListener('pointerdown',event=>{
-    if(event.button!==0 || PoolPhysics.moving(state.balls) || state.shotInProgress || state.winner)return;
+    if(event.button!==0 || PoolPhysics.moving(state.balls) || state.shotInProgress || state.winner || state.shuffleFlash>0)return;
     // After a cue-ball foul, a click places the cue ball instead of starting a shot (Phase 2).
     if(state.placingCue){locate(event);PoolGame.placeCue(state,pointer.x,pointer.y);return;}
     // Aim is locked where you pressed, so moving the mouse while charging can't change the shot (Phase 2).

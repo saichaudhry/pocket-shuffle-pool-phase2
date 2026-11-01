@@ -55,6 +55,7 @@ test('a resting ball next to a pocket is not swallowed', () => {
 // Takes a real shot via PoolGame.shoot (so turn/eligibility bookkeeping runs), then pretends the
 // balls in `droppedIds` fell in, stops everything, and lets update() resolve the shot.
 function fakeShot(state, droppedIds) {
+  state.shuffleFlash = 0; // skip the 1.5s shuffle highlight between test shots
   const ok = PoolGame.shoot(state, 0, 0.1);
   if (!ok) throw new Error('shot was refused');
   for (const b of state.balls) { b.vx = 0; b.vy = 0; }
@@ -152,6 +153,17 @@ test('no shots after the game ends', () => {
 test('reset (create) gives a fresh game', () => {
   const state = PoolGame.create();
   eq([state.currentPlayer, state.shots, state.winner, state.placingCue, openCount(state)], [1, 0, 0, false, 4]);
+});
+
+test('a shuffle highlights the changed pockets and blocks shooting until it ends', () => {
+  const state = PoolGame.create();
+  fakeShot(state, []);
+  fakeShot(state, []);                                  // 2nd shot -> shuffle
+  if (state.changedPockets.length < 2 || state.changedPockets.length > 4) throw new Error('changed: ' + state.changedPockets);
+  eq(PoolGame.shoot(state, 0, 0.5), false, 'blocked during highlight');
+  for (let i = 0; i < 240 * 2; i++) PoolGame.update(state, 1 / 240);
+  eq(state.shuffleFlash, 0);
+  eq(PoolGame.shoot(state, 0, 0.5), true, 'allowed after highlight');
 });
 
 // ---- add new tests above this line ----
