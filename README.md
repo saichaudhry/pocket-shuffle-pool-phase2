@@ -19,7 +19,9 @@ are in a marked section at the bottom of it.
 ## Controls and rules in brief
 
 - **Aim:** move the mouse; the dashed line shows the starting direction.
-- **Shoot:** hold the left mouse button to charge (see the power bar), then release. The aim
+- **Shoot:** hold the left mouse button. The power bar sweeps from empty to full and back
+  every 2.4 seconds; release at the strength you want. Releasing near zero (or a quick click)
+  cancels the shot. The aim
   locks when you press, so you can't knock the shot off line while charging.
 - **Player 1 has solids (●) and Player 2 has stripes (◐).** The highlighted box at the top shows
   whose turn it is and how many balls each player has left.
@@ -46,7 +48,7 @@ were always open.
 |---|---|---|---|
 | 1 | Launches; table, 6 pockets, cue + 3 solids + 3 stripes + 8 | ✅ Met | Veer's work, unchanged. |
 | 2 | Mouse aim + direction line | ✅ Met | Veer's work. The line is now hidden after the game ends. |
-| 3 | Hold/release shooting, capped power meter | ✅ Met | Veer's work. As his README notes, even a quick click shoots with a little power (minimum speed 100). |
+| 3 | Hold/release shooting, capped power meter | ✅ Met | Veer's capped meter, changed in Phase 2 to **sweep** up and down. Note that the spec says "longer holds produce stronger shots up to the cap": that is true for the first 1.2s of a hold, but past the cap power now falls again. This was a deliberate design change at my (Sai's) request; it is listed in the SPEC addendum. |
 | 4 | Movement, cushions, collisions, friction | ✅ Met | Veer's physics. Balls that have just dropped no longer take part in collisions. |
 | 5 | No shooting or cue placement while balls move | ✅ Met | Placement only becomes possible after a shot has fully stopped. |
 | 6 | Exactly 4 open / 2 closed; open pockets remove balls, closed ones rebound | ✅ Met | Tested both ways. The pocket check runs before the cushion clamp, as Veer's TODO said. |
@@ -121,6 +123,7 @@ How a shot flows:
   reads cue coordinates should check `pocketed` first.
 - **Veer's jitter quirk is fixed:** collisions run 4 passes per step and re-check the
   cushions. In a stress test, the worst overlap dropped from 2.15px to 0.88px and balls no
-  longer get pushed into the cushion. A quick click still shoots softly. (Moving the mouse while charging no longer changes the aim: the aim locks when you press the button.)
+  longer get pushed into the cushion. The "quick click still shoots" quirk is gone too: the
+  power meter now sweeps, and releasing below 3% power cancels the shot. (Moving the mouse while charging no longer changes the aim: the aim locks when you press the button.)
 - **Cue placement allows any open spot** on the table (no "behind the line" rule). This is what
   the spec says, but it makes fouls costly.

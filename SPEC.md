@@ -75,3 +75,9 @@ Controls and shot flow
   last ball and the 8-ball on the same shot therefore loses.
 - **Scratch while also pocketing your own ball (rules 3 and 9):** the foul wins, so the turn
   passes.
+- **Power meter (changed in Phase 2 by request):** instead of filling once and staying at the
+  cap, power sweeps 0 → max → 0 every 2.4 seconds while the button is held, and releasing below
+  3% cancels the shot. This departs from the literal wording of acceptance criterion 3
+  ("longer holds produce stronger shots up to the cap"), which now holds only for the first
+  1.2 seconds. To restore the original behaviour, make `chargePower()` in `js/main.js` return
+  `Math.min(1, (now - chargeStart) / sweepMs)`.
