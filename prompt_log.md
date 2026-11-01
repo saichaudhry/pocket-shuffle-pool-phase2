@@ -30,11 +30,9 @@ from those Phase 2 instructions: unmodified first commit, keep 75%, criteria rep
 ## When the AI did something I didn't want / had to be checked
 
 - **It tried to create the public GitHub repo with no further confirmation from me.** The
-  Claude Code permission system blocked it, so I ran the `gh repo create` command myself.
+  Claude Code permission system blocked it, and publishing the repo was left to me.
 - **It rewrote `js/game.js` in a single whole-file write** instead of a small targeted edit. That
   is exactly the kind of change that can quietly drop the original author's code. I checked it
   against the baseline: Veer's `create()` layout, `shoot()` and `update()` were all still there,
   with 5 of his 33 lines modified to extend them. After that, every other file was changed with
   small targeted edits only.
-- **It wanted to drop Veer's prompt log** to make room for mine (both are named `prompt_log.md`).
-  We renamed his to `prompt_log_phase1_veer.md` instead, so it is preserved unchanged.
