@@ -95,6 +95,7 @@ How a shot flows:
   cue ball stays at `balls[0]`, because `render.js` and `main.js` rely on that.
 - Page text that said match rules were "coming in Phase 2" was replaced, because it was no
   longer true. The header now credits both of us.
+- This README was rewritten for Phase 2. Veer's original README is in the first commit.
 - Veer's `prompt_log.md` was renamed to `prompt_log_phase1_veer.md` with its contents unchanged.
 
 ## What to do next (priority order)

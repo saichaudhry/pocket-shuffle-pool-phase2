@@ -34,5 +34,6 @@ from those Phase 2 instructions: unmodified first commit, keep 75%, criteria rep
 - **It rewrote `js/game.js` in a single whole-file write** instead of a small targeted edit. That
   is exactly the kind of change that can quietly drop the original author's code. I checked it
   against the baseline: Veer's `create()` layout, `shoot()` and `update()` were all still there,
-  with 5 of his 33 lines modified to extend them. After that, every other file was changed with
-  small targeted edits only.
+  with 5 of his 33 lines modified to extend them. After that, the other code files were changed
+  with small targeted edits only. (README.md was also rewritten as a whole, which the
+  assignment expects. Veer's original is in the first commit.)
